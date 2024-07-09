@@ -26,9 +26,7 @@ def cal():
         'bottle': int(flask.request.form.get('bottle')),  # 減少瓶裝水/寶特瓶
         'paper_box': int(flask.request.form.get('paper_box')),  # 減少紙餐盒
         'garbage': int(flask.request.form.get('garbage')),  # 減少垃圾（廚餘）
-        'cloud_invoice': int(flask.request.form.get('cloud_invoice')),  # 開立雲端發票
         'paperless': int(flask.request.form.get('paperless')),  # 無紙化
-        'e_invoice': int(flask.request.form.get('e_invoice'))  # 開立電子發票
     }
     print('before_cal', data)
 
