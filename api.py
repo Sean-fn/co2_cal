@@ -5,6 +5,50 @@ from cal import Calculator
 
 api = flask.Flask(__name__)
 
+
+@api.route('/cal/paperless', methods=['POST'])
+def paperless():
+    value = flask.request.form.get('paperless')
+    if value is None or value == '':
+        abort(400, description="Missing 'paperless' value")
+    try:
+        paperless_value = int(value)
+    except ValueError:
+        abort(400, description="Invalid value for 'paperless'")
+
+    calculator = Calculator({'paperless': paperless_value})
+    result = calculator.paperless()
+    return jsonify({'paperless': result})
+
+@api.route('/cal/bottle', methods=['POST'])
+def bottle():
+    value = flask.request.form.get('bottle')
+    if value is None or value == '':
+        abort(400, description="Missing 'bottle' value")
+    try:
+        bottle_value = int(value)
+    except ValueError:
+        abort(400, description="Invalid value for 'bottle'")
+
+    calculator = Calculator({'bottle': bottle_value})
+    result = calculator.bottle()
+    return jsonify({'bottle': result})
+
+@api.route('/cal/electricity', methods=['POST'])
+def electricity():
+    value = flask.request.form.get('electricity')
+    if value is None or value == '':
+        abort(400, description="Missing 'electricity' value")
+    try:
+        electricity_value = int(value)
+    except ValueError:
+        abort(400, description="Invalid value for 'electricity'")
+
+    calculator = Calculator({'electricity': electricity_value})
+    result = calculator.electricity()
+    return jsonify({'electricity': result})
+
+
 @api.route('/cal', methods=['POST'])
 def cal():
     data = {}
