@@ -2,6 +2,34 @@ import flask
 from flask import request, jsonify, abort
 
 from cal import Calculator
+import logging
+from logging.handlers import RotatingFileHandler
+import os
+
+# 配置日誌
+log_file_path = '/app/logs/api.log'
+max_log_size = 1024 * 1024  # 1 MB
+backup_count = 1
+
+class LimitedRotatingFileHandler(RotatingFileHandler):
+    def __init__(self, filename, max_lines=500, *args, **kwargs):
+        super().__init__(filename, *args, **kwargs)
+        self.max_lines = max_lines
+
+    def doRollover(self):
+        super().doRollover()
+        with open(self.baseFilename, 'r') as f:
+            lines = f.readlines()
+        with open(self.baseFilename, 'w') as f:
+            f.writelines(lines[-self.max_lines:])
+
+handler = LimitedRotatingFileHandler(log_file_path, max_lines=100, maxBytes=max_log_size, backupCount=backup_count)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 api = flask.Flask(__name__)
 
@@ -40,7 +68,7 @@ def electricity():
     if value is None or value == '':
         abort(400, description="Missing 'electricity' value")
     try:
-        electricity_value = int(value)
+        electricity_value = float(value)
     except ValueError:
         abort(400, description="Invalid value for 'electricity'")
 
@@ -52,8 +80,18 @@ def electricity():
 @api.route('/cal', methods=['POST'])
 def cal():
     data = {}
-    int_fields = ['gas', 'water', 'food_ware', 'staff', 'e_invoice', 'cloud_invoice', 'paper_box', 'garbage']
+    float_fields = ['gas', 'water', 'staff', 'garbage']
+    int_fields = ['food_ware', 'e_invoice', 'cloud_invoice', 'paper_box']
     str_fields = ['origin', 'destination']
+
+    for field in float_fields:
+        value = flask.request.form.get(field)
+        if value is not None and value != '':
+            try:
+                data[field] = float(value)
+            except ValueError:
+                abort(400, description=f"Invalid value for {field}")
+
 
     for field in int_fields:
         value = flask.request.form.get(field)
