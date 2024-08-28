@@ -1,4 +1,8 @@
 import random
+import mailchimp_marketing as MailchimpMarketing
+from mailchimp_marketing.api_client import ApiClientError
+from dotenv import load_dotenv
+import os
 
 class Calculator:
     def __init__(self, data):
@@ -96,3 +100,21 @@ class Calculator:
         if 'cloud_invoice' in self.data:
             return 0.0038 * self.data['cloud_invoice']
         return None
+ 
+    def edm(self):
+        load_dotenv()
+        api_key = os.getenv('API_KEY')
+        if self.data['paperless'] != 1:
+            return None
+        try:
+            client = MailchimpMarketing.Client()
+            client.set_config({
+                "api_key": api_key,                      
+                "server": "us10"                                                         
+            })                                                                         
+            response = client.lists.get_list_members_info("f45ac30e8d", count=1, offset=1)                                                                          
+            total_items = response['total_items']                                      
+        except ApiClientError as error:                                              
+            print("Error: {}".format(error.text)) 
+
+        return total_items * 0.0064

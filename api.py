@@ -5,9 +5,11 @@ from cal import Calculator
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+from process import working 
 
 # 配置日誌
-log_file_path = '/app/logs/api.log'
+#log_file_path = '/app/logs/api.log'
+log_file_path = './logs/api.log'
 max_log_size = 1024 * 1024  # 1 MB
 backup_count = 1
 
@@ -36,20 +38,23 @@ api = flask.Flask(__name__)
 
 @api.route('/cal/paperless', methods=['POST'])
 def paperless():
-    value = flask.request.form.get('paperless')
-    if value is None or value == '':
-        abort(400, description="Missing 'paperless' value")
-    try:
-        paperless_value = int(value)
-    except ValueError:
-        abort(400, description="Invalid value for 'paperless'")
+    #working()
+    #value = flask.request.form.get('paperless')
+    #if value is None or value == '':
+    #    abort(400, description="Missing 'paperless' value")
+    #try:
+    #    paperless_value = int(value)
+    #except ValueError:
+    #    abort(400, description="Invalid value for 'paperless'")
 
-    calculator = Calculator({'paperless': paperless_value})
-    result = calculator.paperless()
+    calculator = Calculator({'paperless': 1})
+    result = calculator.edm()
+    print('got the webhook', result)
     return jsonify({'paperless': result})
 
 @api.route('/cal/bottle', methods=['POST'])
 def bottle():
+    working()
     value = flask.request.form.get('bottle')
     if value is None or value == '':
         abort(400, description="Missing 'bottle' value")
@@ -64,6 +69,7 @@ def bottle():
 
 @api.route('/cal/electricity', methods=['POST'])
 def electricity():
+    working()
     value = flask.request.form.get('electricity')
     if value is None or value == '':
         abort(400, description="Missing 'electricity' value")
@@ -79,6 +85,7 @@ def electricity():
 
 @api.route('/cal', methods=['POST'])
 def cal():
+    working()
     data = {}
     float_fields = ['gas', 'water', 'staff', 'garbage']
     int_fields = ['food_ware', 'e_invoice', 'cloud_invoice', 'paper_box']
@@ -113,7 +120,7 @@ def cal():
 
 @api.route('/')
 def index():
-    return "Testing API Connection Success!"  
+    return "this is rmrGCP instance"  
 
 if __name__ == '__main__':
     api.run(host='0.0.0.0', port=8080, debug=True)
